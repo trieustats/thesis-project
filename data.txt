@@ -1,4 +1,4 @@
-The Google sheet link:
+Google sheet link:
 https://docs.google.com/spreadsheets/d/1UmLmG28fi7fdzSHuT524tyAfaD0PmeJOl-9RfuYycG4/edit#gid=0
 There are 3 separate sheets in this link. 
 The first one (quantitative data) is used for quantitative analysis.
