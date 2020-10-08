@@ -1,0 +1,367 @@
+---
+title: "upload-github-file"
+author: "Mary Le"
+date: "10/8/2020"
+output: html_document
+---
+
+## Set up
+```{r}
+library(googlesheets4)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(stringr)
+library(tidyr)
+library(rcartocolor)
+library(tidyverse)
+library(forcats)
+```
+
+## Read in data
+
+```{r}
+# token <- gs4_auth() # We run this once and then comment out this line.
+fresh_data <- read_sheet('https://docs.google.com/spreadsheets/d/1UmLmG28fi7fdzSHuT524tyAfaD0PmeJOl-9RfuYycG4/edit#gid=0')
+```
+
+## Process data
+
+```{r}
+colnames(fresh_data) <- c('active_student', 
+                          'leave_duration',
+                          'sex',
+                          'birth_year',
+                          'entry_score',
+                          'duration',
+                          'final_score',
+                          'com_teacher',
+                          'com_effectiveness',
+                          'com_motivation',
+                          'com_diversity',
+                          'com_staff',
+                          'rel_course',
+                          'rel_material',
+                          'rel_test',
+                          'rel_time',
+                          'rel_cancel',
+                          'tang_equipment',
+                          'tang_facility',
+                          'tang_staff',
+                          'em_tea_care',
+                          'em_tea_devotion',
+                          'em_staff',
+                          'em_complaint',
+                          'res_complaint',
+                          'res_exercise',
+                          'res_schedule',
+                          'res_material',
+                          'totally_satisfied',
+                          'recommend',
+                          'study_in_future')
+
+data_processed <- fresh_data %>% 
+  select(- c(leave_duration)) %>%
+# Changing the data in the entry_class into scores. str_replace(string, pattern, replacement) strips off the space between words, dots and the letters that have Vietnamese diacritic marks.
+  mutate_if(is.character, function(x){str_replace_all(x, "[^a-zA-Z0-9]", '')}) %>%
+  replace(. == 'Intermediate555IELTS', '5.25') %>% 
+  replace(. == 'Advanced665IELTS', '6.25') %>%
+  replace(. == 'Foundation445IELTS', '4.25') %>%
+  replace(. == 'PreIELTS335IELTS', '3.25') %>% 
+  
+# Delete 'IELTS' in the final_score
+  mutate(final_score = gsub('IELTS', '', final_score)) %>%
+
+  # Changing the scale from 1 to 5.
+  replace(. == 'Rtng', '5') %>% 
+  replace(. == 'ng', '4') %>%
+  replace(. == 'Bnhthng', '3') %>%
+  replace(. == 'Khngng', '2') %>%
+  replace(. == 'Rtkhngng', '1') %>%
+
+  # changing the variables to be factors instead of characters.
+  mutate(sex = as.factor(sex) %>% recode(Nam = 'Male', N = 'Female'),
+         active_student = as.factor(active_student) %>%
+           recode(C = 'Yes', Khng = 'No'),
+         age = 2020 - birth_year) %>% # NOTE THAT WE COMPUTE AGE HERE
+  # Change all of the characters into numbers
+  mutate_if(is.character, as.numeric) %>% 
+  {.}
+
+str(data_processed)
+```
+
+## Compute the total score
+
+```{r}
+data_processed <- data_processed %>% 
+  mutate(final_score = final_score / 10,
+         delta_score = final_score - entry_score, 
+         com_total = (com_teacher + com_effectiveness + com_motivation + com_diversity + com_staff) / 5,
+         rel_total = (rel_course + rel_material + rel_test + rel_time + rel_cancel) / 5,
+         tang_total = (tang_equipment + tang_facility + tang_staff) / 3,
+         em_total = (em_tea_care + em_tea_devotion + em_staff + em_complaint) / 4,
+         res_total = (res_complaint + res_exercise + res_schedule + res_material) / 4,
+         satis_total = (totally_satisfied + recommend + study_in_future) / 3) %>% 
+  
+  select(entry_score, final_score, delta_score, 
+         duration, com_teacher, com_effectiveness,
+         com_motivation, com_diversity, com_staff, 
+         rel_course, rel_material, rel_test, 
+         rel_time, rel_cancel, tang_equipment,
+         tang_facility, tang_staff, em_tea_care, 
+         em_tea_devotion, em_staff, em_complaint, 
+         res_complaint, res_exercise, res_schedule,
+         res_material, totally_satisfied, recommend, 
+         study_in_future, everything()) 
+```
+
+## 1. Compute cronbach alpha:
+
+```{r}
+#1. cronbach alpha measuring the reliability of the scale.
+cronbach_com <- data_processed %>% select(contains('com_'), - com_total)
+cronbach_rel <- data_processed %>% select(contains('rel_'), - rel_total)
+cronbach_tang <- data_processed %>% select(contains('tang_'), - tang_total)
+cronbach_em <- data_processed %>% select(contains('em_'), - em_total)
+cronbach_res <- data_processed %>% select(contains('res_'), - res_total)
+cronbach_satis <- data_processed %>% select(c('totally_satisfied', 'recommend', 'study_in_future'))
+
+alpha(cronbach_com) #0.87
+alpha(cronbach_rel) #0.81
+alpha(cronbach_tang) #0.87
+alpha(cronbach_em) #0.85
+alpha(cronbach_res) #0.84
+alpha(cronbach_satis) #0.81
+# --> good in statistics!
+```
+
+## 2. Test for correlation between each CRTER component and student satisfaction
+Specifically: R squared = cor^2
+
+```{r}
+cor.test(data_processed$satis_total, data_processed$com_total, method = 'pearson') # r = 0.43, low correlation.
+cor.test(data_processed$satis_total, data_processed$rel_total, method = 'pearson') # r = 0.45, low correlation.
+cor.test(data_processed$satis_total, data_processed$tang_total, method = 'pearson') # r = 0.61, moderate correlation.
+cor.test(data_processed$satis_total, data_processed$em_total, method = 'pearson') # r = 0.57, moderate correlation.
+cor.test(data_processed$satis_total, data_processed$res_total, method = 'pearson') # r = 0.48, low correlation.
+
+# --> The 5 components do affect the satisfaction of students.
+```
+
+## 3. Multiple linear regression for CRTER and student satisfaction
+```{r}
+summary(lm(satis_total ~ com_total + rel_total + tang_total + em_total + res_total, data = data_processed)) 
+# R-squared = 44.5%, explaining 44.5% variation of this relationship.
+# valid p-values for the whole model, tang_total and em_total.
+```
+
+## The relationship between tangibles (tang_total) and student satisfaction:
+
+```{r}
+tang_satis <- data_processed %>% 
+  ggplot(aes(x = tang_total, y = satis_total, col = sex)) +
+  geom_smooth(method = lm) +
+  geom_jitter(alpha = 0.7) +
+  geom_smooth(method = 'lm', lwd = 0.9, col = 1) +
+  facet_wrap(~sex) +
+  scale_color_carto_d(guide = F) +
+  labs(x = 'Tangibles', y = 'Student Satisfaction') +
+  theme_bw()
+tang_satis
+
+ggsave('new/tang_satis.png', tang_satis, height = 3.6, width = 4.7, dpi = 600)
+# setting a dpi of 600 helps make the data look much smoother and clearer.
+```
+
+## The relationship between empathy (em_total) and student satisfaction:
+
+```{r}
+# now we will use different carto colors (pink and green instead of yellow and purple).
+em_satis <- data_processed %>% 
+  ggplot(aes(x = em_total, y = satis_total, col = sex)) +
+  geom_smooth(method = lm) +
+  geom_jitter(alpha = 0.7) +
+  geom_smooth(method = 'lm', lwd = 0.9, col = 1) +
+  facet_wrap(~sex) +
+  scale_color_carto_d(guide = F, palette = 'ArmyRose', direction = -1) +
+  labs(x = 'Empathy', y = 'Student Satisfaction') +
+  theme_bw()
+em_satis
+
+ggsave('new/em_satis.png', em_satis, height = 3.6, width = 4.7, dpi = 600)
+```
+
+## 4. Test whether going to McIELTS is effective
+
+Null hypothesis: The final score is NOT statistically larger than the entry score.
+Alternative hypothesis: The final score is statistically larger than the entry score.
+
+```{r}
+t.test(data_processed$delta_score, alternative = 'greater') #one-sided
+```
+
+t.test for delta_score > 0: p-value 3.876e-14.
+This means that going to McIELTS IS EFFECTIVE.
+
+## 5. The correlation between `satis_total` (student satisfaction) and `delta_score` (increase in performance).
+
+```{r}
+cor.test(data_processed$satis_total, data_processed$delta_score, method = 'pearson') # r = 0.02 --> very weak positive correlation, p-value = 0.8 > 0.05.
+# A shortened test form:
+cor(data_processed$satis_total, data_processed$delta_score, method = 'pearson')
+
+# Plot for total average satisfaction and delta score:
+satis_delta <- data_processed %>%
+  ggplot(aes(x = satis_total, y = delta_score, col = sex)) +
+  geom_point() + #new addition for plotting data --> the transparency in the data points is clearer when compared to other graphs.
+  geom_smooth(method = 'lm') +
+  geom_jitter(alpha = 0.7) + 
+  scale_color_carto_d(guide = F, palette = 2, direction = -1) +
+  geom_smooth(method = 'lm', lwd = 0.9, col = 1) +
+  facet_wrap(~ sex) +
+  labs(x = 'Student satisfaction', y = 'Progress in test scores') +
+  theme_bw()
+satis_delta
+
+ggsave('new/satis_delta.png', satis_delta, height = 3.6, width = 4.7, dpi = 600)
+
+```
+
+## 6. The relationship between duration and delta score:
+
+```{r}
+cor.test(data_processed$delta_score, data_processed$duration, method = 'pearson')
+#0.53, p-value < 0.05.
+summary(lm(delta_score ~ duration, data_processed)) # p-value < 0.05.
+# R-squared = 28%, explaining 28% variation of this relationship.
+
+duration_perf_1 <- data_processed %>% 
+  ggplot(aes(x = duration, y = delta_score, col = 'Pastel')) +
+  geom_smooth(method = lm) +
+  geom_jitter(alpha = 0.7) +
+  geom_smooth(method = 'lm', lwd = 0.9, col = 1) +
+  scale_color_carto_d(guide = F, palette = 'Pastel') +
+  labs(x = 'Duration', y = 'Progress in test score') +
+  theme_bw()
+duration_perf_1
+
+ggsave('new/duration_perf_1.png', duration_perf_1, height = 3.6, width = 4,7, dpi = 600)
+
+duration_perf_2 <- data_processed %>% 
+  ggplot(aes(x = duration, y = delta_score, col = sex)) +
+  geom_smooth(method = lm) +
+  geom_jitter(alpha = 0.7) +
+  geom_smooth(method = 'lm', lwd = 0.9, col = 1) +
+  facet_wrap(~sex) +
+  scale_color_carto_d(guide = F, palette = 'Temps', direction = -1) +
+  labs(x = 'Duration', y = 'Progress in test score') +
+  theme_bw()
+duration_perf_2
+
+ggsave('new/duration_perf_2.png', duration_perf_2, height = 3.6, width = 4,7, dpi = 600)
+```
+
+## 7. Qualitative findings
+```{r}
+#choose a theme:
+theme_one <- function () {
+  theme_minimal() %+replace%
+    theme(
+      legend.position = c(0.85, 0.15),
+      legend.key.height = unit(3, 'mm'),
+      panel.grid.major.y = element_blank(),
+    )
+}
+
+cmmt_link <-
+  'https://docs.google.com/spreadsheets/d/1UmLmG28fi7fdzSHuT524tyAfaD0PmeJOl-9RfuYycG4/edit#gid=0'
+beg_comments <-
+  read_sheet(cmmt_link, sheet = 'foundation_intermediate')[, 2:3] %>%
+  mutate(Level = 'Found/Inter',
+         # calculate the proportion of each feedback over total feedback
+         prop_feed = number_people / sum(number_people))
+
+adv_comments <-
+  read_sheet(cmmt_link, sheet = 'intermediate_advanced')[, 2:3] %>%
+  mutate(Level = 'Inter/Adv',
+         # calculate the proportion of each feedback over total feedback
+         prop_feed = number_people / sum(number_people))
+
+prop_df <- adv_comments %>%
+  bind_rows(beg_comments)
+
+f_count <- prop_df %>%
+  ggplot(aes(
+    x = number_people,
+    y = fct_reorder(simplified_comment, number_people), # order comments so that the one with most feedback go first (fct_reorder from library forcats)
+    fill = fct_rev(Level) # reverse level so that Found/Inter is on top (fct_rev from library forcats)
+  )) +
+  geom_col() + #stack.
+  labs(y = NULL, x = 'Feedback count', fill = NULL) +
+  scale_fill_carto_d(palette = 2, guide = guide_legend(reverse = TRUE)) + #reverse the order of the keys in the legend.
+  scale_x_continuous(expand = expansion(add = c(0, 1.5))) +
+  theme_one()
+f_count
+
+f_prop <- prop_df %>%
+  ggplot(aes(
+    x = prop_feed,
+    y = fct_reorder(simplified_comment, prop_feed),
+    fill = fct_rev(Level) 
+  )) +
+  geom_col(position = 'dodge') + #one part on another.
+  scale_fill_carto_d(palette = 2, guide = guide_legend(reverse = TRUE)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1), # add percent sign on the x tick label.
+                     expand = expansion(add = c(0, 0.01))) + 
+  labs(y = NULL, x = 'Feedback proportion', fill = NULL) + 
+  theme_one()
+f_prop
+
+ggsave('proportion_feedback.png',
+       f_prop,
+       height = 7,
+       width = 5)
+
+ggsave('count_feedback.png',
+       f_count,
+       height = 4.8,
+       width = 5.5)
+
+```
+
+
+## 10. Additional analysis: histogram of 5 components
+```{r}
+# Choose a specific palette and find out the color names of that palette.
+my_colors = carto_pal(7, "Burg") #choose palette Burg.
+scales::show_col(my_colors) # choose color: e38191
+
+# geom_bar` is generally better to use than `geom_histogram` if `x` is NOT continuous.
+data_processed %>% 
+  ggplot(aes(x = com_total)) + 
+  geom_bar(fill = '#e38191') +
+  labs(x = 'Competence average', y = 'Count') +
+  theme_bw() 
+
+ggplot(data_processed, aes(x = rel_total)) + 
+  geom_bar(fill = '#dc7176') +
+  labs(x = 'Reliability average', y = 'Count') +
+  theme_bw() 
+
+ggplot(data_processed, aes(x = tang_total)) + 
+  geom_bar(fill = '#42B7B9') +
+  labs(x = 'Tangibles average', y = 'Count') +
+  theme_bw() 
+
+ggplot(data_processed, aes(x = em_total)) + 
+  geom_bar(fill = '#89c0b6') +
+  labs(x = 'Empathy average', y = 'Count') +
+  theme_bw() 
+
+ggplot(data_processed, aes(x = res_total)) + 
+  geom_bar(fill = "#f2855d") +
+  labs(x = 'Responsiveness average', y = 'Count') +
+  theme_bw()
+```
+
