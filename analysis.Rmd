@@ -301,7 +301,7 @@ f_count <- prop_df %>%
   geom_col() + #stack.
   labs(y = NULL, x = 'Feedback count', fill = NULL) +
   scale_fill_carto_d(palette = 2, guide = guide_legend(reverse = TRUE)) + #reverse the order of the keys in the legend.
-  scale_x_continuous(expand = expansion(add = c(0, 1.5))) +
+  scale_x_continuous(expand = expansion(add = c(0, 1.5)), limits = c(0, 30)) +
   theme_one()
 f_count
 
