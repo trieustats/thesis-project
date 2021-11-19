@@ -9,7 +9,3 @@ Quantitative and qualitative methods were adopted with the use of an online surv
 The findings suggest that student satisfaction has a negligible correlation with the progress in their IELTS performance because of lack of valid data. All 5 key components of service quality (Competence, Reliability, Tangibles, Empathy, Responsiveness - CRTER) have moderate and low correlations with student overall satisfaction. 
 
 Tangibles and Empathy are the strongest components that affect student satisfaction and male students have a better impression of these two components than their female peers. Apart from that, if students spend 2.5 months taking a certain class at the center, they will be expected to have an increase of 0.395 in their IELTS performance. In this  regard, female students are likely to perform better than their male peers as their study time increases.
-
-## How to use the files
-The raw data can be found in data file.txt. 
-Then, copy the codes from analysis.Rmd and paste to R Studio and proceed.
