@@ -172,13 +172,13 @@ tang_satis <- data_processed %>%
 tang_satis
 
 ggsave('new/tang_satis.png', tang_satis, height = 3.6, width = 4.7, dpi = 600)
-# setting a dpi of 600 helps make the data look much smoother and clearer.
+# Setting a dpi of 600 helps make the data look much smoother and clearer.
 ```
 
 ## The relationship between empathy (em_total) and student satisfaction:
 
 ```{r}
-# now we will use different carto colors (pink and green instead of yellow and purple).
+# Use different carto colors (pink and green instead of yellow and purple).
 em_satis <- data_processed %>% 
   ggplot(aes(x = em_total, y = satis_total, col = sex)) +
   geom_smooth(method = lm) +
