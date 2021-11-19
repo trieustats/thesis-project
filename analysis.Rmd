@@ -195,8 +195,8 @@ ggsave('new/em_satis.png', em_satis, height = 3.6, width = 4.7, dpi = 600)
 
 ## 4. Test whether going to McIELTS is effective
 
-Null hypothesis: The final score is NOT statistically larger than the entry score.
-Alternative hypothesis: The final score is statistically larger than the entry score.
+# Null hypothesis: The final score is NOT statistically larger than the entry score.
+# Alternative hypothesis: The final score is statistically larger than the entry score.
 
 ```{r}
 t.test(data_processed$delta_score, alternative = 'greater') #one-sided
