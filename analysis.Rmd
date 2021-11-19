@@ -21,7 +21,7 @@ library(forcats)
 ## Read in data
 
 ```{r}
-# token <- gs4_auth() # We run this once and then comment out this line.
+# token <- gs4_auth() # Run this once and then comment out this line.
 fresh_data <- read_sheet('https://docs.google.com/spreadsheets/d/1UmLmG28fi7fdzSHuT524tyAfaD0PmeJOl-9RfuYycG4/edit#gid=0')
 ```
 
@@ -62,8 +62,8 @@ colnames(fresh_data) <- c('active_student',
 
 data_processed <- fresh_data %>% 
   select(- c(leave_duration)) %>%
-# Changing the data in the entry_class into scores. str_replace(string, pattern, replacement) 
-# strips off the space between words, dots and the letters that have Vietnamese diacritical marks.
+# Change the data in the entry_class into scores. str_replace(string, pattern, replacement) 
+# Strip off the space between words, dots and the letters that have Vietnamese diacritical marks.
   mutate_if(is.character, function(x){str_replace_all(x, "[^a-zA-Z0-9]", '')}) %>%
   replace(. == 'Intermediate555IELTS', '5.25') %>% 
   replace(. == 'Advanced665IELTS', '6.25') %>%
@@ -73,14 +73,14 @@ data_processed <- fresh_data %>%
 # Delete 'IELTS' in the final_score
   mutate(final_score = gsub('IELTS', '', final_score)) %>%
 
-  # Changing the scale from 1 to 5.
+  # Change the scale from 1 to 5.
   replace(. == 'Rtng', '5') %>% 
   replace(. == 'ng', '4') %>%
   replace(. == 'Bnhthng', '3') %>%
   replace(. == 'Khngng', '2') %>%
   replace(. == 'Rtkhngng', '1') %>%
 
-  # changing the variables to be factors instead of characters.
+  # Change the variables to be factors instead of characters.
   mutate(sex = as.factor(sex) %>% recode(Nam = 'Male', N = 'Female'),
          active_student = as.factor(active_student) %>%
            recode(C = 'Yes', Khng = 'No'),
