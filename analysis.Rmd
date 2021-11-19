@@ -120,7 +120,7 @@ data_processed <- data_processed %>%
 ## 1. Compute cronbach alpha:
 
 ```{r}
-#1. cronbach alpha measuring the reliability of the scale.
+#1. Cronbach Alpha measuring the reliability of the scale.
 cronbach_com <- data_processed %>% select(contains('com_'), - com_total)
 cronbach_rel <- data_processed %>% select(contains('rel_'), - rel_total)
 cronbach_tang <- data_processed %>% select(contains('tang_'), - tang_total)
