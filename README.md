@@ -12,4 +12,4 @@ Tangibles and Empathy are the strongest components that affect student satisfact
 
 ## How to use the files
 The raw data can be found in data file.txt. 
-Then, copy the codes from analysis.Rmd and paste into R Studio and proceed.
+Then, copy the codes from analysis.Rmd and paste to R Studio and proceed.
