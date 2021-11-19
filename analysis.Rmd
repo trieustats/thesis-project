@@ -138,9 +138,8 @@ alpha(cronbach_satis) #0.81
 ```
 
 ## 2. Test for correlation between each CRTER component and student satisfaction
-# Specifically: R squared = cor^2
-
 ```{r}
+# Specifically: R squared = cor^2
 cor.test(data_processed$satis_total, data_processed$com_total, method = 'pearson') # r = 0.43, low correlation.
 cor.test(data_processed$satis_total, data_processed$rel_total, method = 'pearson') # r = 0.45, low correlation.
 cor.test(data_processed$satis_total, data_processed$tang_total, method = 'pearson') # r = 0.61, moderate correlation.
@@ -195,15 +194,13 @@ ggsave('new/em_satis.png', em_satis, height = 3.6, width = 4.7, dpi = 600)
 
 ## 4. Test whether going to McIELTS is effective
 
+```{r}
 # Null hypothesis: The final score is NOT statistically larger than the entry score.
 # Alternative hypothesis: The final score is statistically larger than the entry score.
-
-```{r}
 t.test(data_processed$delta_score, alternative = 'greater') #one-sided
+# t.test for delta_score > 0: p-value 3.876e-14. This means that going to McIELTS IS EFFECTIVE.
 ```
 
-t.test for delta_score > 0: p-value 3.876e-14.
-This means that going to McIELTS IS EFFECTIVE.
 
 ## 5. The correlation between `satis_total` (student satisfaction) and `delta_score` (increase in performance).
 
