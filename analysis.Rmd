@@ -262,7 +262,7 @@ ggsave('figs/duration_perf_2.png', duration_perf_2, height = 3.6, width = 4.7, d
 
 ## 7. Qualitative findings
 ```{r}
-#choose a theme:
+# Choose a theme:
 theme_one <- function () {
   theme_minimal() %+replace%
     theme(
@@ -277,13 +277,13 @@ cmmt_link <-
 beg_comments <-
   read_sheet(cmmt_link, sheet = 'foundation_intermediate')[, 2:3] %>%
   mutate(Level = 'Found/Inter',
-         # calculate the proportion of each feedback over total feedback
+         # Calculate the proportion of each feedback over total feedback
          prop_feed = number_people / sum(number_people))
 
 adv_comments <-
   read_sheet(cmmt_link, sheet = 'intermediate_advanced')[, 2:3] %>%
   mutate(Level = 'Inter/Adv',
-         # calculate the proportion of each feedback over total feedback
+         # Calculate the proportion of each feedback over total feedback
          prop_feed = number_people / sum(number_people))
 
 prop_df <- adv_comments %>%
@@ -292,8 +292,8 @@ prop_df <- adv_comments %>%
 f_count <- prop_df %>%
   ggplot(aes(
     x = number_people,
-    y = fct_reorder(simplified_comment, number_people), # order comments so that the one with most feedback go first (fct_reorder from library forcats)
-    fill = fct_rev(Level) # reverse level so that Found/Inter is on top (fct_rev from library forcats)
+    y = fct_reorder(simplified_comment, number_people), # Order comments so that the one with most feedback go first (fct_reorder from library forcats)
+    fill = fct_rev(Level) # Reverse level so that Found/Inter is on top (fct_rev from library forcats)
   )) +
   geom_col() + #stack.
   labs(y = NULL, x = 'Feedback count', fill = NULL) +
