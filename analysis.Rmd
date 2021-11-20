@@ -21,7 +21,7 @@ library(forcats)
 ## Read in data
 
 ```{r}
-# token <- gs4_auth() # Run this once and then comment out this line.
+# token <- gs4_auth() #  Run this once and then comment out this line.
 fresh_data <- read_sheet('https://docs.google.com/spreadsheets/d/1UmLmG28fi7fdzSHuT524tyAfaD0PmeJOl-9RfuYycG4/edit#gid=0')
 ```
 
