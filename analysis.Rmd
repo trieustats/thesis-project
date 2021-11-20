@@ -244,7 +244,7 @@ duration_perf_1 <- data_processed %>%
   theme_bw()
 duration_perf_1
 
-ggsave('figs/duration_perf_1.png', duration_perf_1, height = 3.6, width = 4,7, dpi = 600)
+ggsave('figs/duration_perf_1.png', duration_perf_1, height = 3.6, width = 4.7, dpi = 600)
 
 duration_perf_2 <- data_processed %>% 
   ggplot(aes(x = duration, y = delta_score, col = sex)) +
@@ -257,7 +257,7 @@ duration_perf_2 <- data_processed %>%
   theme_bw()
 duration_perf_2
 
-ggsave('figs/duration_perf_2.png', duration_perf_2, height = 3.6, width = 4,7, dpi = 600)
+ggsave('figs/duration_perf_2.png', duration_perf_2, height = 3.6, width = 4.7, dpi = 600)
 ```
 
 ## 7. Qualitative findings
@@ -316,12 +316,12 @@ f_prop <- prop_df %>%
   theme_one()
 f_prop
 
-ggsave('proportion_feedback.png',
+ggsave('figs/proportion_feedback.png',
        f_prop,
        height = 7,
        width = 5)
 
-ggsave('count_feedback.png',
+ggsave('figs/count_feedback.png',
        f_count,
        height = 4.8,
        width = 5.5)
