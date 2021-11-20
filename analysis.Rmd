@@ -295,7 +295,7 @@ f_count <- prop_df %>%
     y = fct_reorder(simplified_comment, number_people), # Order comments so that the one with most feedback go first (fct_reorder from library forcats)
     fill = fct_rev(Level) # Reverse level so that Found/Inter is on top (fct_rev from library forcats)
   )) +
-  geom_col() + #stack.
+  geom_col() + #Stack.
   labs(y = NULL, x = 'Feedback count', fill = NULL) +
   scale_fill_carto_d(palette = 2, guide = guide_legend(reverse = TRUE)) + #reverse the order of the keys in the legend.
   scale_x_continuous(expand = expansion(add = c(0, 1.5)), limits = c(0, 30)) +
@@ -308,7 +308,7 @@ f_prop <- prop_df %>%
     y = fct_reorder(simplified_comment, prop_feed),
     fill = fct_rev(Level) 
   )) +
-  geom_col(position = 'dodge') + #one part on another.
+  geom_col(position = 'dodge') + #One part on another.
   scale_fill_carto_d(palette = 2, guide = guide_legend(reverse = TRUE)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1), # add percent sign on the x tick label.
                      expand = expansion(add = c(0, 0.01))) + 
@@ -332,8 +332,8 @@ ggsave('figs/count_feedback.png',
 ## 10. Additional analysis: histogram of 5 components
 ```{r}
 # Choose a specific palette and find out the color names of that palette.
-my_colors = carto_pal(7, "Burg") #choose palette Burg.
-scales::show_col(my_colors) # choose color: e38191
+my_colors = carto_pal(7, "Burg") # Choose palette Burg.
+scales::show_col(my_colors) # Choose color: e38191
 
 # geom_bar` is generally better to use than `geom_histogram` if `x` is NOT continuous.
 data_processed %>% 
