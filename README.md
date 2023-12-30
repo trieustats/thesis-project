@@ -8,7 +8,7 @@ A quantitative method was adopted with the use of an online survey. Questionnair
 ## Limitation
 The findings suggest that student satisfaction has a negligible correlation with the progress in their IELTS performance because of lack of valid data. This is the caveat of the study and therefore cannot be generalized to a larger population.
 
-***However***, going to McIELTS to study is **effective**, as shown by the t-test result, with scores after taking the classes at McIELTS higher than scores upon enrolment.
+***However***, going to McIELTS to study is **effective**, as shown by the t-test result, with scores after taking the classes at McIELTS center higher than scores upon enrolment.
 
 ## Results
 1. All 5 key components of service quality (Competence, Reliability, Tangibles, Empathy, Responsiveness - CRTER) have moderate and low correlations with students' overall satisfaction. 
