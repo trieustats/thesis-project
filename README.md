@@ -14,3 +14,6 @@ The findings suggest that student satisfaction has a negligible correlation with
 1. All 5 key components of service quality (Competence, Reliability, Tangibles, Empathy, Responsiveness - CRTER) have moderate and low correlations with students' overall satisfaction. 
 2. Tangibles and Empathy are the strongest components that affect student satisfaction. Male students rate these two components higher than their female peers.
 3. If students **spend 2.5 months taking a certain class at the center, they will be expected to have an increase of 0.395 in their IELTS performance.** In this regard, female students are likely to perform better than their male peers as their study time increases.
+
+## Visualization
+The figures are readable to color-blind people using the rcartocolor package.
