@@ -5,7 +5,7 @@ Previous studies have focused on the relationship between students’ satisfacti
 
 A quantitative method was adopted with the use of an online survey. Questionnaires were sent to 96 students who were currently or had been previously enrolled in the classes at McIELTS from June to October 2020. The study analyzed a total of 63 valid responses. Cronbach’s Alpha, Pearson correlation test, multiple linear regression, and t-test were used to analyze the data. 
 
-## Limitation: 
+## Limitation
 The findings suggest that student satisfaction has a negligible correlation with the progress in their IELTS performance because of lack of valid data. This is the caveat of the study and therefore cannot be generalized to a larger population.
 
 ## Results
